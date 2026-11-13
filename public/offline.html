@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f3ed" />
+    <title>Sem conexão · Emilly Studio</title>
+    <style>
+      :root { color-scheme: light; font-family: Arial, sans-serif; background: #f5f3ed; color: #202923; }
+      * { box-sizing: border-box; }
+      body { min-height: 100svh; margin: 0; display: grid; place-items: center; padding: 24px; text-align: center; }
+      main { width: min(100%, 360px); }
+      .mark { display: grid; width: 62px; height: 62px; margin: 0 auto 24px; place-items: center; border: 1px solid #b99c70; border-radius: 50%; color: #dcc18f; background: #204a3e; font: italic 38px Georgia, serif; }
+      p { color: #71766f; font-size: 15px; line-height: 1.65; }
+      h1 { margin: 0; font: 400 36px/1.08 Georgia, serif; letter-spacing: -1px; }
+      button { min-height: 46px; margin-top: 14px; padding: 0 20px; border: 0; color: white; background: #204a3e; font: inherit; cursor: pointer; }
+      button:focus-visible { outline: 3px solid #a45a43; outline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="mark" aria-hidden="true">E</span>
+      <h1>Seu estúdio continua aqui.</h1>
+      <p>Você está sem conexão. Reconecte-se para atualizar o feed e tente novamente.</p>
+      <button type="button" onclick="location.reload()">Tentar novamente</button>
+    </main>
+  </body>
+</html>

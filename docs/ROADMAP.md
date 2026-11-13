@@ -1,69 +1,69 @@
 # Roadmap — Emilly Studio
 
-Este roadmap segue o Prompt Mestre. Cada etapa precisa estar estável e verificável antes da seguinte. Status descreve o repositório em 2026-11-13.
+Atualizado em 2026-11-13. Segue as etapas do Prompt Mestre; serviços externos permanecem desligados até serem escolhidos e configurados.
 
 ## Etapa 0 — Inspeção e planejamento
 
-**Status: concluída nesta branch.**
-
-- [x] Inspecionar a árvore remota e ler o Prompt Mestre integralmente.
-- [x] Registrar que o repositório não possui aplicação, dependências, testes ou configurações.
-- [x] Propor arquitetura, privacidade, estratégia de performance, dependências, riscos e pendências.
-- [x] Registrar decisões em `docs/DECISIONS.md`.
-- [x] Atualizar este roadmap e criar README.
-- [ ] Aprovação do responsável para iniciar a Etapa 1.
+**Concluída na branch `docs/etapa-0-arquitetura`.** Árvore remota inspecionada; arquitetura, custos prováveis, riscos e sequência registrados no README, neste arquivo e em `docs/DECISIONS.md`.
 
 ## Etapa 1 — Fundação
 
-**Inicia após aprovação.** Criar estrutura Next.js/React/TypeScript, tokens e componentes visuais autorais, navegação mobile-first e um feed demonstrativo com dados explicitamente marcados como fictícios. Implementar estados de carregamento, vazio, erro e offline; preferências de movimento reduzido; layout responsivo e navegação acessível. Não simular integrações externas como se funcionassem.
+**Fundação implementada como PWA; validação em dispositivos reais pendente.**
 
-**Aceite:** comandos de lint, typecheck, testes básicos e build definidos e executáveis; fluxo principal utilizável em viewport estreito e desktop; bundle inicial medido; baseline Lighthouse registrada com ambiente e limitações; revisão de teclado/labels/foco. Sem chaves secretas no cliente ou conteúdo demo apresentado como real.
+- Next.js App Router, React e TypeScript estrito.
+- Design system autoral, navegação desktop/mobile e safe-area inferior.
+- Feed, explorar/busca/filtros, salvos, atividade e perfil de demonstração.
+- Registros inteiramente fictícios rotulados; contatos externos não simulados.
+- Interações otimistas em memória e avisos de não persistência.
+- Estados de loading, erro, vazio e offline; respeita `prefers-reduced-motion`.
+- Seis testes unitários de filtragem e explicação de recomendações.
+- Manifesto PWA, ícones próprios 192/512/maskable, instalação standalone, orientação de instalação no Safari/iOS, service worker versionado e fallback offline.
+- Cache explicitamente limitado ao shell público da demonstração e assets estáticos versionados; não cacheia chamadas de API nem estado do usuário.
+
+**Verificações desta entrega:** lint, `pnpm typecheck`, 6/6 testes unitários e `node --check public/sw.js` passaram. O build padrão compilou, mas a checagem TypeScript interna bloqueou com `spawn EPERM`; o artefato de preview foi gerado com essa checagem temporariamente delegada ao typecheck explícito, e a configuração versionada foi restaurada sem ignorar erros. Build criou `/` e `/manifest.webmanifest`. Home, manifest, worker, fallback offline e ícones responderam HTTP 200; CTA e modal de instalação foram conferidos no preview. `pnpm audit --prod` não chegou a `registry.npmjs.org` nesta rodada (`ECONNREFUSED`); uma execução anterior não encontrou advisories, mas não foi possível atualizar o resultado agora. A linha de base de bundle documentada é da versão anterior ao PWA. Não há Lighthouse, frame drops, rede limitada ou instalação em aparelho físico.
+
+**Aceite restante:** instalar em Android/Chrome e iPhone/Safari reais, confirmar abertura standalone e comportamento offline; registrar Lighthouse/Core Web Vitals e bundle em ambiente sem bloqueio de processos; revisar navegação com teclado e leitor de tela.
 
 ## Etapa 2 — Conta e dados
 
-Configurar projeto Supabase e ambientes, autenticação e recuperação, perfil editável e workspaces/membros. Escrever migrações e políticas RLS antes de conectar a interface. Definir sessão, logout, exportação/exclusão e retenção mínima. Documentar `.env.example` sem segredos.
+Configurar Supabase e ambientes, autenticação/recuperação, perfil editável, workspaces/membros, migrações e RLS antes de conectar a interface. Definir sessão/logout, exportação/exclusão e retenção mínima.
 
-**Aceite:** integração de autenticação; tentativa automatizada de leitura/escrita cruzada entre tenants negada no banco; fluxos de sessão expirada/logout; revisão das permissões e variáveis de ambiente. Requer credenciais de serviço configuradas pelo responsável.
+**Aceite:** tentativa automatizada de leitura/escrita cruzada entre tenants negada no banco; sessão expirada e logout testados; credenciais somente em ambiente de servidor. Requer provisionamento do responsável.
 
 ## Etapa 3 — Feed e interações
 
-Adicionar feed paginado, explorar por segmento/região, salvos e ajuste de preferências. Persistir curtir, salvar, desfazer e rejeição como sinais distintos, com respostas otimistas acessíveis e reconciliação após erro.
+Substituir estados de sessão por dados paginados persistidos; manter explorar, salvos, desfazer e preferências. Feedback otimista deve reconciliar falha da rede.
 
-**Aceite:** dados persistem no tenant correto; regras de ordenação têm testes; falha de rede não deixa interface em estado falso; carga do feed e bundle são comparados com baseline.
+**Aceite:** persistência por tenant; regras de ordenação testadas; nenhuma interface falsa após falha de rede; bundle comparado com baseline.
 
 ## Etapa 4 — Dados reais
 
-Selecionar fonte empresarial autorizada e implementar adaptador. Avaliar atribuição, termos, retenção, deduplicação, limites, custo e correções antes de ingestão. Exibir origem, confiança, descoberta e última verificação; manter demonstração rotulada e separada.
+Selecionar fonte oficial/autorizada; criar adaptador, deduplicação, proveniência, confiança, data de descoberta/verificação, limites e controles de custo.
 
-**Aceite:** nenhuma evidência ou telefone é inferido sem prova; origem e datas disponíveis em cada item; controle de quota/custo e sinalização de erro definidos. Requer aprovação da fonte, conta e orçamento.
+**Aceite:** nenhuma oportunidade, contato ou responsável inferido sem evidência; direitos de correção/remoção implementados. Requer fonte, conta, termos e orçamento aprovados.
 
 ## Etapa 5 — Contato e atividade
 
-Abrir WhatsApp via link validado com mensagem contextual editável; registrar somente contato iniciado. Implementar pipeline de acompanhamento, notas e datas.
+Adicionar link `wa.me` validado com texto contextual editável e acompanhamento comercial. Registrar apenas contato iniciado; não inferir envio/leitura.
 
-**Aceite:** mensagem nunca é enviada automaticamente; status não sugere leitura/resposta não confirmada; telefone inválido impede abertura; usuários controlam notas e exclusão.
+**Aceite:** envio sempre manual, sem disparo em massa; notas e estados removíveis; telefone sem origem válida não gera link.
 
 ## Etapa 6 — Inteligência
 
-Implementar pontuação determinística explicável por perfil, região e sinais consentidos. Registrar versão e fatores. Permitir editar e redefinir preferências. IA opcional apenas após definir fornecedor, custo e salvaguardas contra fatos inventados.
-
-**Aceite:** razão da recomendação exibida; diversidade de descoberta mantida; preferências e sinais apagáveis; avaliação com casos rastreáveis.
+Pontuação determinística por perfil, localização e sinais explícitos, com explicação, versão, edição e redefinição. IA opcional só após fornecedor, custo e salvaguardas definidos.
 
 ## Etapa 7 — Preparação comercial
 
-Desacoplar planos e entitlements, quotas, métricas necessárias e painel administrativo. Revisar segurança, privacidade, backup/recuperação, operação e custos. Integrar pagamento apenas após aprovação explícita de provedor, preços e regras.
-
-**Aceite:** isolamento testado, limites validados no backend, auditoria sem excesso de dados pessoais, restauração documentada e revisão pré-produção concluída.
+Planos/entitlements, quotas, métricas mínimas, painel administrativo, backup/restauração e revisão pré-produção. Pagamentos só após aprovação comercial explícita.
 
 ## Verificações transversais
 
-Em cada entrega, executar testes unitários/integrados/de interface aplicáveis, lint, typecheck e build disponíveis. Registrar resultados reais e falhas. Testar rede instável, dados vazios, sessão expirada e acessibilidade. Medir Core Web Vitals, bundle e frame drops. Validar Safari/iOS e Chrome/Android em dispositivos reais quando disponíveis; indicar claramente testes não realizados.
+Em cada etapa: lint, typecheck, testes aplicáveis e build; registrar resultados, acessibilidade, rede instável, sessão expirada, dados vazios e regressões de bundle/Core Web Vitals. Validar Safari/iOS e Chrome/Android em dispositivos reais quando disponíveis.
 
-## Pendências de produto e operação
+## Pendências de produto/operacionais
 
-- Aprovar início da Etapa 1.
-- Criar/configurar contas de Supabase e hospedagem em momento apropriado.
-- Escolher domínio, ambientes e provedor de e-mail/autenticação.
-- Selecionar fonte autorizada de dados de empresas e aprovar limites/orçamento antes da Etapa 4.
-- Definir contato do controlador, política de retenção e procedimentos de direitos LGPD antes de produção.
-- Decidir pagamentos e preços somente na Etapa 7.
+- Validar instalação e experiência offline da Etapa 1 em aparelhos reais.
+- Provisionar Supabase, hospedagem, domínio e provedor de e-mail antes da Etapa 2.
+- Definir política de retenção e processo LGPD antes de produção.
+- Aprovar fonte de dados, atribuição e orçamento antes da Etapa 4.
+- Decidir preços e pagamentos somente na Etapa 7.

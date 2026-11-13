@@ -1,72 +1,76 @@
 # Decisões técnicas — Emilly Studio
 
-**Status:** Etapa 0 — auditoria e proposta inicial.  
-**Data:** 2026-11-13.  
-**Escopo:** decisões de arquitetura para orientar a Etapa 1; ainda não são implementação nem configuração de serviços.
+**Status:** Etapa 1 — fundação PWA implementada; arquitetura de backend ainda proposta.  
+**Data:** 2026-11-13.
 
-## Auditoria do repositório
+## Auditoria inicial
 
-A branch `main` foi inspecionada por meio da integração GitHub. A raiz contém somente `PROMPT_MESTRE_EMILLY_STUDIO.md` e uma pasta `docs/` vazia. Não há README, código, manifestos de dependências, CI, migrations, testes, deploy ou arquivo de ambiente. O diretório de trabalho local aberto nesta sessão não é um checkout Git e está vazio; portanto, esta auditoria usa a árvore remota como fonte de verdade. Nenhuma implementação existente foi alterada.
+A branch original continha somente `PROMPT_MESTRE_EMILLY_STUDIO.md` e uma pasta `docs/` vazia. Não havia app, dependências, CI, testes ou deploy. O diretório local aberto nesta sessão não era um checkout Git; o trabalho foi desenvolvido em `work/Emillystudio` e publicado por um commit de árvore na branch `docs/etapa-0-arquitetura` através do conector GitHub.
 
-## Proposta de arquitetura
+## Decisões da Etapa 1
 
-### Aplicação web
+### Aplicação e interface
 
-Next.js App Router, React e TypeScript estrito em uma aplicação web responsiva. Componentes de servidor para leitura inicial e renderização; componentes de cliente somente onde a interação exigir. Começar com CSS moderno e tokens próprios, sem uma camada pesada de UI. Isso mantém uma equipe pequena produtiva e dá controle sobre a identidade visual e o custo do bundle.
+- **Next.js App Router, React 19 e TypeScript estrito:** base web responsiva, com caminhos para renderização no servidor quando a autenticação e o banco forem adicionados.
+- **CSS autoral e tokens locais:** identidade editorial em papel quente, verde profundo e tipografia serifada para títulos. Sem kit visual genérico ou biblioteca de animações.
+- **Ícones SVG locais:** sem dependência de ícones, fontes remotas ou imagem de marca de terceiros.
+- **PWA instalável sem wrapper nativo:** o Prompt Mestre recomenda frontend web responsivo com suporte a PWA. A entrega instala pela tela inicial e abre em modo standalone em navegadores compatíveis; não é um binário assinado nem está publicado em lojas.
+- **Service worker próprio, pequeno e versionado:** cacheia apenas a home demonstrativa explicitamente marcada como pública, arquivos imutáveis `/_next/static/`, ícones, manifesto e fallback offline. Não intercepta APIs, formulários nem operações de escrita. Ativação remove caches antigos para evitar versão presa.
+- **Instalação por plataforma:** Chromium usa `beforeinstallprompt` quando disponível; no iOS, a interface explica Safari → Compartilhar → Adicionar à Tela de Início. HTTPS é exigido em produção; localhost/loopback atende desenvolvimento.
+- **Feed rolável nativamente:** cards têm dimensões previsíveis e animações limitadas a pequenas transições de cor/opacidade. Sem scroll snap, virtualização prematura, blur ou animação contínua.
+- **Dados ilustrativos explicitamente rotulados:** a Etapa 1 não tem integração de empresas. Não usamos fotografias, contatos ou marcas fictícias apresentados como reais. O espaço de imagem avisa que uma imagem oficial não está disponível.
+- **Sinais em memória:** curtir/salvar e preferências permitem explorar os estados visuais da prévia; toast informa que nada será guardado ao sair. O MVP persistente depende de autenticação e backend na Etapa 2.
+- **Contato não simulado:** a ação informa que nenhum telefone/canal real está disponível. Não abre WhatsApp nem registra envio.
+- **Regras puras e explicáveis:** filtro e motivo de recomendação ficam em `src/lib/opportunities.ts`, com testes unitários. Os motivos declaram expressamente que são demonstrações.
 
-A instalação como PWA pode ser acrescentada sem tornar o service worker requisito para navegação. Não armazenar dados privados do feed offline no MVP. Cache público e estático deve ter versionamento e invalidação explícitos.
+### Validação
+
+Lint passou (Biome); `pnpm typecheck` passou; 6/6 testes unitários passaram; `node --check public/sw.js` passou. O build padrão compilou a aplicação, mas a checagem interna de tipos falhou no sandbox com `spawn EPERM`. Para gerar preview, o build foi repetido com a checagem interna temporariamente desativada, após o typecheck explícito passar; `next.config.ts` foi restaurado sem `ignoreBuildErrors`. O build produziu `/` e `/manifest.webmanifest` como rotas estáticas.
+
+A home, o manifest, o worker, o fallback offline e os ícones 192/512/maskable responderam HTTP 200 no preview. O botão “Instalar app” e o modal de instruções abriram e fecharam no preview. Instalação e uso offline ainda precisam de validação em iPhone/Safari e Android/Chrome físicos. A auditoria de dependências desta rodada não alcançou npm registry (`ECONNREFUSED`); uma execução anterior não encontrou advisories, mas o resultado atual não pôde ser renovado.
+
+Baseline anterior à camada PWA: HTML 200 de 22.206 bytes/~290 ms em localhost e 587.819 bytes JS bruto / 180.535 gzip para todos os 8 chunks. Esse valor não representa o payload deste artefato, payload inicial, Lighthouse, rede móvel ou FPS. Sem Lighthouse/Core Web Vitals, teste de frame drops, rede lenta ou dispositivo real, não certificamos meta de 60/120 fps.
+
+Lint, TypeScript, 6 testes unitários e `pnpm audit --prod` passaram (nenhuma vulnerabilidade conhecida reportada pelo audit). A compilação Next gerou as rotas estáticas após ignorar temporariamente a checagem TypeScript interna e executar `pnpm typecheck` separadamente com sucesso. O Next dev server e processos de checagem/workers que criam processos filhos falham neste sandbox com `spawn EPERM`. A configuração comprometida não ignora erros TypeScript; a limitação de build é do ambiente. A prévia foi servida localmente por `next start` a partir do artefato gerado.
+
+Baseline local do build: resposta HTML 200 de 22.206 bytes em ~290 ms no localhost (processo local já iniciado). O diretório de chunks contém 8 arquivos JavaScript, 587.819 bytes sem compressão / 180.535 bytes gzip. Esses valores são uma linha de base bruta do artefato, não payload confirmado para a primeira tela, Lighthouse, Core Web Vitals, rede móvel ou FPS.
+
+Ainda não há perfil de Lighthouse, frame drops medidos, teste de rede lenta ou teste físico em iOS/Android. A sensação visual em navegador local não comprova metas de 60/120 fps.
+
+## Arquitetura alvo (etapas futuras)
 
 ### Persistência, identidade e isolamento
 
-Supabase Auth e PostgreSQL são uma opção adequada à escala inicial: reduzem trabalho operacional e oferecem autenticação, SQL relacional e RLS. O desenho inicial deve incluir `users/profiles`, `workspaces`, `memberships`, empresas, oportunidades, proveniência e interações. Relações de usuário devem sempre estar escopadas por workspace.
+Supabase Auth e PostgreSQL seguem como proposta para autenticação, perfis, workspaces, memberships, oportunidades, proveniência e interações. RLS deve isolar workspace no banco; backend também valida sessão, papel e tenant. `service_role` nunca pode estar no navegador. Migrações serão versionadas e políticas negativas entre tenants testadas. Esse backend não foi criado nem configurado nesta etapa.
 
-RLS será aplicada às tabelas expostas, com políticas negativas testadas entre workspaces. O backend validará sessão, papel e tenant em cada operação protegida. A chave `service_role` não pode aparecer no navegador. Migrações SQL serão versionadas e revisadas; dados de tenants nunca dependerão somente de filtros na interface.
+### Segurança e LGPD
 
-Papéis iniciais podem ser `owner` e `member`; planos e entitlements ficam desacoplados da identidade e do provedor de pagamento. Não ativar cobrança até aprovação comercial explícita.
+Minimizar dados, declarar finalidade e retenção, documentar exportação/exclusão, invalidar sessão ao sair e remover cache privado pertinente. Aplicar validação no servidor, autorização por tenant e rate limits onde houver abuso. Definir backup e recuperação antes de dados comerciais reais. Sem analytics invasivo ou cookies desnecessários.
 
-### Segurança, privacidade e LGPD
+### Dados reais e contato
 
-Minimizar os dados coletados: informações de perfil profissional, preferências, interações e notas que o usuário inserir. Documentar finalidade, retenção, exportação e exclusão antes de produção. Logout deve invalidar a sessão e remover cache privado local. Cookies estritamente necessários devem permanecer sob gestão do provedor de autenticação. Sem trackers ou analytics invasivo por padrão.
+Escolher fonte oficial/autorizada só após avaliar termos, atribuição, retenção, custos e limites. Proveniência deve distinguir existência da empresa, contato publicado/verificado, canal WhatsApp, responsável identificado e oportunidade confirmada. Link `wa.me` fica para etapa posterior e apenas com número válido de origem conhecida; envio sempre manual.
 
-Aplicar validação no cliente e novamente no servidor, autorização por tenant, rate limiting em operações sujeitas a abuso e mensagens de erro sem detalhes internos. Definir backups e recuperação antes de guardar dados comerciais relevantes. Revisar contratos e localização de processamento do provedor antes da produção.
+### Recomendações
 
-### Descoberta e recomendações
+Pontuação determinística com versão e evidências, editável e explicável. Curtir e salvar permanecem sinais diferentes. IA opcional exige fornecedor, orçamento e proteção contra fatos inventados; não há IA configurada.
 
-O MVP começa com dados de demonstração claramente identificados para validar feed e fluxo, sem marcas ou contatos inventados como se fossem reais. Dados reais somente após escolher uma fonte autorizada e validar seus termos, atribuição, limites, regras de armazenamento e custos.
+## Custos e dependências externas
 
-Cada registro de empresa/oportunidade deve distinguir existência, contato publicado, contato verificado, WhatsApp disponível, pessoa responsável identificada e oportunidade confirmada. A proveniência registra fonte, descoberta, última verificação e evidências. Adaptadores isolam provedores futuros. Deduplicação deve usar identificadores de fonte quando autorizados e campos normalizados sem presumir identidade.
+- Supabase e hospedagem ainda não escolhidos; custos dependem do plano, tráfego, armazenamento e retenção.
+- Fonte real de empresas pode cobrar por chamada e impor atribuição/retenção; não aprovada.
+- WhatsApp Business, IA e pagamentos não configurados nem aprovados.
+- Não há valores estimados; confirmar tabela vigente e estimar volumes antes de contratar/ativar.
 
-A recomendação inicial será uma pontuação determinística e explicável por segmento, localização, serviços e sinais explícitos. Guardar versão da regra e fatores usados; permitir editar preferências e apagar sinais. Curtida e salvamento permanecem eventos distintos. Não alegar treinamento automático de IA.
+## Pendências e riscos
 
-### Experiência e performance
+1. O código está em `work/Emillystudio`; a sessão não oferece checkout Git local funcional. Confirmar publicação do código no remoto pelo conector GitHub.
+2. Autenticação, banco e isolamento multi-tenant estão pendentes para Etapa 2.
+3. Dados reais, política de correção/remoção, custos e credenciais exigem decisões antes da Etapa 4.
+4. Revisão do responsável sobre retenção e direitos LGPD antes de produção.
+5. Validar performance em Safari/iOS e Chrome/Android; não certificar fps por inferência.
+6. Sem chaves, contatos reais, campanhas ou segredos no projeto.
 
-Usar rolagem nativa do navegador, conteúdo com altura estável, dimensões explícitas de imagem e carregamento lazy fora da primeira tela. Feedback de curtir/salvar deve ser otimista e reversível; falhas sincronizam o estado com o servidor. Começar sem virtualização e sem animações contínuas no feed; medir antes de adicionar complexidade.
+## Próximo passo
 
-60/120 fps não pode ser garantido pelo software. O app evitará trabalho por frame em JavaScript, animará apenas propriedades baratas quando necessário e respeitará `prefers-reduced-motion`. A validação deve medir Core Web Vitals, bundle e frame drops em profiling, em dispositivos e redes representativos quando disponíveis. Lighthouse em desktop não substitui validação em iPhone/Safari e Android/Chrome.
-
-### Contato
-
-Gerar um link `wa.me` somente com telefone válido e origem rastreável. A mensagem pré-preenchida é editável e o envio permanece manual. Registrar apenas que o link de contato foi aberto/iniciado; nunca inferir envio, leitura ou resposta. Não haverá disparo em massa nem integração WhatsApp Business no MVP.
-
-## Dependências externas e custos prováveis
-
-- **Supabase:** conta e configuração necessárias para autenticação, banco, RLS, backups e deploy. Pode haver opção de baixo custo para desenvolvimento, mas limites e preços mudam; confirmar a tabela vigente antes de escolher plano ou produzir. Não há gasto aprovado.
-- **Hospedagem web:** requer provedor e ambientes separados; custo depende de tráfego, execução e armazenamento. A escolha fica para a Etapa 1/produção.
-- **Google Places ou outra fonte empresarial:** não habilitar sem avaliar termos, atribuição, retenção, limites e preço por chamada. A fonte pode se tornar o principal custo variável. Sem preço ou uso estimado nesta etapa.
-- **WhatsApp:** link público `wa.me` não equivale a API de envio. Integração de plataforma empresarial exigiria configuração e aprovações próprias e fica fora do MVP.
-- **Pagamentos e IA:** sem contratação ou credencial. Estruturas futuras devem permanecer desacopladas e sem cobrança/IA ativada no MVP.
-
-Valores não foram estimados porque faltam provedor escolhido, volumes, região de processamento e plano. Antes de qualquer serviço pago, apresentar estimativa com limites de uso e alertas.
-
-## Riscos e bloqueios
-
-1. A sessão não possui checkout Git local do repositório; alterações de código e comandos de build exigirão abrir um checkout da branch.
-2. Supabase, hospedagem, domínio e provedor de e-mail/autenticação ainda não foram escolhidos nem configurados.
-3. Fonte autorizada de empresas e orçamento para dados reais ainda precisam de decisão; até lá, não publicar oportunidades como reais.
-4. Requisitos de retenção, exclusão/exportação e termos para produção precisam de revisão pelo responsável pelo produto.
-5. Performance física em Safari/iOS e Chrome/Android não pode ser certificada sem dispositivos reais; registrar limitações por medição.
-6. Nenhuma chave, dado real de contato, campanha ou credencial foi fornecida; não criar valores fictícios para simular integrações.
-
-## Aprovação necessária
-
-O Prompt Mestre determina que a Etapa 1 só comece após aprovação. Esta branch entrega a auditoria, arquitetura proposta e roadmap da Etapa 0. A próxima autorização necessária é iniciar a fundação visual e técnica, ainda sem conectar serviços pagos ou exibir dados reais.
+Validar instalação e comportamento offline em aparelhos reais. Antes da Etapa 2, provisionar contas e ambientes; nenhuma cobrança ou serviço externo está ativo.
