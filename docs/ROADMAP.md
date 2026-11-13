@@ -11,16 +11,16 @@ Atualizado em 2026-11-13. Segue as etapas do Prompt Mestre; serviços externos p
 **Fundação implementada como PWA; validação em dispositivos reais pendente.**
 
 - Next.js App Router, React e TypeScript estrito.
-- Design system autoral, navegação desktop/mobile e safe-area inferior.
+- Feed social mobile de coluna única com publicação, mídia quadrada, ações compactas, legenda e navegação inferior em safe-area.
 - Feed, explorar/busca/filtros, salvos, atividade e perfil de demonstração.
-- Registros inteiramente fictícios rotulados; contatos externos não simulados.
+- Registros inteiramente fictícios rotulados; avião de papel reservado para contato com número válido e fonte rastreável.
 - Interações otimistas em memória e avisos de não persistência.
 - Estados de loading, erro, vazio e offline; respeita `prefers-reduced-motion`.
-- Seis testes unitários de filtragem e explicação de recomendações.
+- Oito testes unitários para filtragem, recomendação e validação de link de contato.
 - Manifesto PWA, ícones próprios 192/512/maskable, instalação standalone, orientação de instalação no Safari/iOS, service worker versionado e fallback offline.
 - Cache explicitamente limitado ao shell público da demonstração e assets estáticos versionados; não cacheia chamadas de API nem estado do usuário.
 
-**Verificações desta entrega:** lint, `pnpm typecheck`, 6/6 testes unitários e `node --check public/sw.js` passaram. O build padrão compilou, mas a checagem TypeScript interna bloqueou com `spawn EPERM`; o artefato de preview foi gerado com essa checagem temporariamente delegada ao typecheck explícito, e a configuração versionada foi restaurada sem ignorar erros. Build criou `/` e `/manifest.webmanifest`. Home, manifest, worker, fallback offline e ícones responderam HTTP 200; CTA e modal de instalação foram conferidos no preview. `pnpm audit --prod` não chegou a `registry.npmjs.org` nesta rodada (`ECONNREFUSED`); uma execução anterior não encontrou advisories, mas não foi possível atualizar o resultado agora. A linha de base de bundle documentada é da versão anterior ao PWA. Não há Lighthouse, frame drops, rede limitada ou instalação em aparelho físico.
+**Verificações desta entrega:** lint, `pnpm typecheck`, 8/8 testes unitários e `node --check public/sw.js` passaram. O build padrão compilou, mas a checagem TypeScript interna bloqueou com `spawn EPERM`; o artefato de preview foi gerado com essa checagem temporariamente delegada ao typecheck explícito, e a configuração versionada foi restaurada sem ignorar erros. Build criou `/` e `/manifest.webmanifest`. Home, manifest, worker, fallback offline e ícones responderam HTTP 200; CTA e modal de instalação foram conferidos no preview. `pnpm audit --prod` não chegou a `registry.npmjs.org` nesta rodada (`ECONNREFUSED`); uma execução anterior não encontrou advisories, mas não foi possível atualizar o resultado agora. A linha de base de bundle documentada é da versão anterior ao PWA. Não há Lighthouse, frame drops, rede limitada ou instalação em aparelho físico.
 
 **Aceite restante:** instalar em Android/Chrome e iPhone/Safari reais, confirmar abertura standalone e comportamento offline; registrar Lighthouse/Core Web Vitals e bundle em ambiente sem bloqueio de processos; revisar navegação com teclado e leitor de tela.
 

@@ -4,7 +4,7 @@ Mobile-first product foundation for discovering commercial opportunities for mod
 
 ## Current stage
 
-Stage 1 (foundation) is implemented as an installable, mobile-first PWA. It opens in standalone mode after installation, offers an install action where the browser supports it, and includes an iOS Safari installation guide. The opportunities in the interface are **fictional demonstration examples**, with no real company, campaign, contact, or verification data. Likes and saves exist only in page memory; they are not accounts, persistent records, or proof of a real commercial relationship. Contact buttons explain why no contact can be started from demo records.
+Stage 1 (foundation) is implemented as an installable, mobile-first PWA. The main screen uses a single-column social feed with compact publisher rows, square media areas, like/context/contact actions, a save action, captions, and bottom navigation. It opens in standalone mode after installation, offers an install action where supported, and includes an iOS Safari installation guide. The opportunities in the interface are **fictional demonstration examples**, with no real company, campaign, contact, or verification data. Likes and saves exist only in page memory; they are not accounts, persistent records, or proof of a real commercial relationship. The paper-plane action opens WhatsApp only if a traceable, valid company number is available; the demo records have none.
 
 Stage 2 (account, database, and tenant isolation) has not started. There is no authentication, database, external data provider, analytics, payment, or WhatsApp integration configured.
 
@@ -31,7 +31,7 @@ pnpm install
 pnpm dev
 ```
 
-Open `http://localhost:3000`. The app has five destinations: Início, Explorar, Salvos, Atividade, and Perfil. On mobile, navigation sits in the bottom safe area. Search/category filters, likes, saves, and profile-interest toggles are interactive but temporary. Serve production over HTTPS for installation outside localhost. On iPhone, open the link in Safari and use Share → Add to Home Screen; on supported Chromium browsers, use **Instalar app** or the browser menu.
+Open `http://localhost:3000`. The app has five destinations: Início, Explorar, Salvos, Atividade, and Perfil. The one-column feed adapts to screen width and keeps navigation in the bottom safe area. Search/category filters, likes, saves, recommendation context, and profile-interest toggles are interactive but temporary. The paper-plane icon is the company contact action: if a future record has a valid phone and traceable source, it opens WhatsApp with a draft for the user to review; it never sends automatically. Demo records have no contact number. Serve production over HTTPS for installation outside localhost. On iPhone, open the link in Safari and use Share → Add to Home Screen; on supported Chromium browsers, use **Instalar app** or the browser menu.
 
 ## Quality checks
 

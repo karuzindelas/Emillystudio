@@ -7,6 +7,10 @@ export type Opportunity = {
   services: string[];
   interests: string[];
   palette: "clay" | "olive" | "plum";
+  contact?: {
+    whatsappPhone: string;
+    source: string;
+  };
 };
 
 export type OpportunityFilters = {
@@ -46,4 +50,13 @@ export function recommendationReason(opportunity: Opportunity, profileInterests:
 
 export function initials(name: string): string {
   return name.replace("Marca fictícia", "").trim().slice(0, 2).padStart(2, "0");
+}
+
+export function createWhatsAppUrl(opportunity: Opportunity): string | null {
+  const contact = opportunity.contact;
+  const digits = contact?.whatsappPhone.replace(/\D/g, "");
+  if (!contact?.source.trim() || !digits || digits.length < 10 || digits.length > 15) return null;
+
+  const message = `Olá! Encontrei ${opportunity.name} no Emilly Studio e gostaria de conversar sobre possíveis projetos de conteúdo em ${opportunity.category}. Podemos falar?`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }

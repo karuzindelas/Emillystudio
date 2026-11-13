@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  createWhatsAppUrl,
   filterOpportunities,
   initials,
   type Opportunity,
@@ -57,4 +58,31 @@ describe("recommendationReason", () => {
 
 it("creates a compact monogram without turning demo names into brands", () => {
   expect(initials("Marca fictícia 01")).toBe("01");
+});
+
+describe("createWhatsAppUrl", () => {
+  it("does not create a contact link for examples without a published number", () => {
+    expect(createWhatsAppUrl(examples[0])).toBeNull();
+  });
+
+  it("requires a traceable source and a valid phone number", () => {
+    expect(
+      createWhatsAppUrl({
+        ...examples[0],
+        contact: { whatsappPhone: "+55 (31) 99999-9999", source: "Página oficial da empresa" },
+      }),
+    ).toContain("https://wa.me/5531999999999?text=");
+    expect(
+      createWhatsAppUrl({
+        ...examples[0],
+        contact: { whatsappPhone: "123", source: "Página oficial da empresa" },
+      }),
+    ).toBeNull();
+    expect(
+      createWhatsAppUrl({
+        ...examples[0],
+        contact: { whatsappPhone: "5531999999999", source: " " },
+      }),
+    ).toBeNull();
+  });
 });

@@ -67,7 +67,7 @@ export function PwaInstallControl() {
     <>
       <button type="button" className="install-control" onClick={install}>
         <Icon name="download" />
-        <span>Instalar app</span>
+        <span className="visually-hidden">Instalar app</span>
       </button>
       {showInstallHelp && (
         <div className="install-dialog-backdrop">

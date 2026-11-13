@@ -13,7 +13,11 @@ export type IconName =
   | "menu"
   | "check"
   | "filter"
-  | "download";
+  | "download"
+  | "comment"
+  | "send"
+  | "more"
+  | "image";
 
 const paths: Record<IconName, ReactNode> = {
   home: (
@@ -79,6 +83,24 @@ const paths: Record<IconName, ReactNode> = {
     <>
       <path d="M12 3v12m0 0 4-4m-4 4-4-4" />
       <path d="M5 17v3h14v-3" />
+    </>
+  ),
+  comment: (
+    <path d="M20.5 11.5a8.5 8.5 0 0 1-9 8.5 9.8 9.8 0 0 1-4-.8L3 21l1.7-4.1A8.2 8.2 0 0 1 3.5 12a8.5 8.5 0 0 1 8.5-8.5 8.5 8.5 0 0 1 8.5 8Z" />
+  ),
+  send: <path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13" />,
+  more: (
+    <>
+      <circle cx="5" cy="12" r="1" />
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="19" cy="12" r="1" />
+    </>
+  ),
+  image: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="m21 15-5-5L5 21" />
     </>
   ),
 };

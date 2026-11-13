@@ -12,7 +12,8 @@ A branch original continha somente `PROMPT_MESTRE_EMILLY_STUDIO.md` e uma pasta 
 ### Aplicação e interface
 
 - **Next.js App Router, React 19 e TypeScript estrito:** base web responsiva, com caminhos para renderização no servidor quando a autenticação e o banco forem adicionados.
-- **CSS autoral e tokens locais:** identidade editorial em papel quente, verde profundo e tipografia serifada para títulos. Sem kit visual genérico ou biblioteca de animações.
+- **Feed de coluna única inspirado na referência social enviada:** cabeçalho compacto, espaço quadrado de mídia, ações de interesse/contexto/contato, salvar separado, legenda e navegação inferior. Sem painéis laterais ou grid de dashboard. O espaço de mídia é neutro e declara que a imagem oficial não está disponível.
+- **CSS autoral e tokens locais:** superfície branca, tinta escura e poucos acentos. Sem kit visual genérico, logotipos copiados ou biblioteca de animações.
 - **Ícones SVG locais:** sem dependência de ícones, fontes remotas ou imagem de marca de terceiros.
 - **PWA instalável sem wrapper nativo:** o Prompt Mestre recomenda frontend web responsivo com suporte a PWA. A entrega instala pela tela inicial e abre em modo standalone em navegadores compatíveis; não é um binário assinado nem está publicado em lojas.
 - **Service worker próprio, pequeno e versionado:** cacheia apenas a home demonstrativa explicitamente marcada como pública, arquivos imutáveis `/_next/static/`, ícones, manifesto e fallback offline. Não intercepta APIs, formulários nem operações de escrita. Ativação remove caches antigos para evitar versão presa.
@@ -20,20 +21,16 @@ A branch original continha somente `PROMPT_MESTRE_EMILLY_STUDIO.md` e uma pasta 
 - **Feed rolável nativamente:** cards têm dimensões previsíveis e animações limitadas a pequenas transições de cor/opacidade. Sem scroll snap, virtualização prematura, blur ou animação contínua.
 - **Dados ilustrativos explicitamente rotulados:** a Etapa 1 não tem integração de empresas. Não usamos fotografias, contatos ou marcas fictícias apresentados como reais. O espaço de imagem avisa que uma imagem oficial não está disponível.
 - **Sinais em memória:** curtir/salvar e preferências permitem explorar os estados visuais da prévia; toast informa que nada será guardado ao sair. O MVP persistente depende de autenticação e backend na Etapa 2.
-- **Contato não simulado:** a ação informa que nenhum telefone/canal real está disponível. Não abre WhatsApp nem registra envio.
+- **Avião de papel inicia contato:** usa `wa.me` com mensagem contextual revisável somente se houver telefone válido e origem rastreável; exemplos fictícios não têm números reais. Nunca envia mensagem automaticamente nem afirma leitura.
 - **Regras puras e explicáveis:** filtro e motivo de recomendação ficam em `src/lib/opportunities.ts`, com testes unitários. Os motivos declaram expressamente que são demonstrações.
 
 ### Validação
 
-Lint passou (Biome); `pnpm typecheck` passou; 6/6 testes unitários passaram; `node --check public/sw.js` passou. O build padrão compilou a aplicação, mas a checagem interna de tipos falhou no sandbox com `spawn EPERM`. Para gerar preview, o build foi repetido com a checagem interna temporariamente desativada, após o typecheck explícito passar; `next.config.ts` foi restaurado sem `ignoreBuildErrors`. O build produziu `/` e `/manifest.webmanifest` como rotas estáticas.
+Lint passou (Biome); `pnpm typecheck` passou; 8/8 testes unitários passaram; `node --check public/sw.js` passou. O build padrão compilou a aplicação, mas a checagem interna de tipos falhou no sandbox com `spawn EPERM`. Para gerar preview, o build foi repetido com a checagem interna temporariamente desativada, após o typecheck explícito passar; `next.config.ts` foi restaurado sem `ignoreBuildErrors`. O build produziu `/` e `/manifest.webmanifest` como rotas estáticas.
 
-A home, o manifest, o worker, o fallback offline e os ícones 192/512/maskable responderam HTTP 200 no preview. O botão “Instalar app” e o modal de instruções abriram e fecharam no preview. Instalação e uso offline ainda precisam de validação em iPhone/Safari e Android/Chrome físicos. A auditoria de dependências desta rodada não alcançou npm registry (`ECONNREFUSED`); uma execução anterior não encontrou advisories, mas o resultado atual não pôde ser renovado.
+A home, o manifest, o worker, o fallback offline e os ícones 192/512/maskable responderam HTTP 200 no preview. O botão de instalação e o modal de instruções foram verificados. A tela foi revisada visualmente em viewport estreito com feed de coluna única; o avião de papel exibiu aviso ao não haver telefone empresarial real no exemplo. Instalação e uso offline ainda precisam de validação em iPhone/Safari e Android/Chrome físicos. A auditoria de dependências desta rodada não alcançou npm registry (`ECONNREFUSED`); uma execução anterior não encontrou advisories, mas o resultado atual não pôde ser renovado.
 
 Baseline anterior à camada PWA: HTML 200 de 22.206 bytes/~290 ms em localhost e 587.819 bytes JS bruto / 180.535 gzip para todos os 8 chunks. Esse valor não representa o payload deste artefato, payload inicial, Lighthouse, rede móvel ou FPS. Sem Lighthouse/Core Web Vitals, teste de frame drops, rede lenta ou dispositivo real, não certificamos meta de 60/120 fps.
-
-Lint, TypeScript, 6 testes unitários e `pnpm audit --prod` passaram (nenhuma vulnerabilidade conhecida reportada pelo audit). A compilação Next gerou as rotas estáticas após ignorar temporariamente a checagem TypeScript interna e executar `pnpm typecheck` separadamente com sucesso. O Next dev server e processos de checagem/workers que criam processos filhos falham neste sandbox com `spawn EPERM`. A configuração comprometida não ignora erros TypeScript; a limitação de build é do ambiente. A prévia foi servida localmente por `next start` a partir do artefato gerado.
-
-Baseline local do build: resposta HTML 200 de 22.206 bytes em ~290 ms no localhost (processo local já iniciado). O diretório de chunks contém 8 arquivos JavaScript, 587.819 bytes sem compressão / 180.535 bytes gzip. Esses valores são uma linha de base bruta do artefato, não payload confirmado para a primeira tela, Lighthouse, Core Web Vitals, rede móvel ou FPS.
 
 Ainda não há perfil de Lighthouse, frame drops medidos, teste de rede lenta ou teste físico em iOS/Android. A sensação visual em navegador local não comprova metas de 60/120 fps.
 
@@ -64,7 +61,7 @@ Pontuação determinística com versão e evidências, editável e explicável. 
 
 ## Pendências e riscos
 
-1. O código está em `work/Emillystudio`; a sessão não oferece checkout Git local funcional. Confirmar publicação do código no remoto pelo conector GitHub.
+1. O código está em `work/Emillystudio` e na branch `docs/etapa-0-arquitetura`; a sessão não oferece checkout Git local funcional.
 2. Autenticação, banco e isolamento multi-tenant estão pendentes para Etapa 2.
 3. Dados reais, política de correção/remoção, custos e credenciais exigem decisões antes da Etapa 4.
 4. Revisão do responsável sobre retenção e direitos LGPD antes de produção.
